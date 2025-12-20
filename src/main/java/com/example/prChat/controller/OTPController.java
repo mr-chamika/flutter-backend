@@ -68,7 +68,6 @@ public class OTPController {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
-        System.out.println(obj.getEmail());
 
         try {
             restTemplate.postForEntity(url, request, String.class);
@@ -89,7 +88,7 @@ return "Email not found";
     @PostMapping("/verify")
     public String verifyOtp(@RequestBody Email obj) {
         boolean isValid = otpStorage.verifyOtp(obj.getEmail(), obj.getOtp());
-
+System.out.println("Verifying OTP: " + isValid);
         if (isValid) {
             return "OTP verified successfully!";
         } else {

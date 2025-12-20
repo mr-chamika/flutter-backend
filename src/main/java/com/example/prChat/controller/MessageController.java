@@ -12,10 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -60,6 +60,28 @@ public class MessageController {
         return messageRepo.findByChatId(id);
 
     }
+
+    @GetMapping("/poll")
+    public List<Message> poll(@RequestParam String id, @RequestParam(required = false) String since) {
+        List<Message> messages = messageRepo.findByChatId(id);
+
+        if (since != null && !since.isEmpty()) {
+            try {
+
+                Instant sinceInstant = Instant.parse(since);
+
+                messages = messages.stream()
+                        .filter(msg -> msg.getCreatedAt() != null && msg.getCreatedAt().isAfter(sinceInstant))
+                        .collect(Collectors.toList());
+            } catch (Exception e) {
+                messages = new ArrayList<>();
+                System.err.println("Invalid 'since' parameter: " + since);
+            }
+        }
+
+        return messages;
+    }
+
 
     @GetMapping("/one")
     public Message getOne(@RequestParam String id) {
